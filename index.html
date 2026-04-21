@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4efe6">
+  <title>离舍确认</title>
+  <style>
+    :root {
+      --ivory: #f4efe6;
+      --stone: #d8ccbb;
+      --stone-deep: #b7a895;
+      --charcoal: #22211f;
+      --ink: #34302b;
+      --muted: #80786d;
+      --gold: #9b7d45;
+      --verdigris: #4c6961;
+      --line: rgba(34, 33, 31, 0.12);
+      --veil: rgba(34, 33, 31, 0.46);
+      --panel: #fbf7ee;
+      --shadow: 0 24px 70px rgba(34, 33, 31, 0.16);
+      font-family: "Times New Roman", "Noto Serif SC", "Songti SC", serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--ivory);
+    }
+
+    body {
+      min-height: 100%;
+      margin: 0;
+      color: var(--charcoal);
+      background:
+        linear-gradient(115deg, rgba(255, 255, 255, 0.44), rgba(255, 255, 255, 0) 34%),
+        linear-gradient(180deg, #f7f1e7 0%, #eee5d8 52%, #f8f3ea 100%);
+      font-family: "Times New Roman", "Noto Serif SC", "Songti SC", serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      content: "";
+      opacity: 0.23;
+      background-image:
+        radial-gradient(circle at 12% 8%, rgba(34, 33, 31, 0.08) 0 1px, transparent 1.4px),
+        radial-gradient(circle at 82% 34%, rgba(155, 125, 69, 0.08) 0 1px, transparent 1.5px);
+      background-size: 28px 28px, 42px 42px;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app-shell {
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    .intro {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      min-height: 100dvh;
+      padding: calc(env(safe-area-inset-top) + 28px) 28px calc(env(safe-area-inset-bottom) + 38px);
+      background:
+        linear-gradient(90deg, transparent 0, transparent 26px, rgba(155, 125, 69, 0.2) 27px, transparent 28px),
+        linear-gradient(180deg, #f9f4ea 0%, #eee5d8 100%);
+      transition: opacity 420ms ease, visibility 420ms ease;
+    }
+
+    .intro.is-hidden {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .intro-mark {
+      align-self: center;
+      max-width: 340px;
+      transform: translateY(7dvh);
+    }
+
+    .kicker {
+      margin: 0 0 18px;
+      color: var(--gold);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .intro-title {
+      margin: 0;
+      color: var(--charcoal);
+      font-size: clamp(34px, 11vw, 54px);
+      font-weight: 400;
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .intro-copy {
+      max-width: 260px;
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .intro-action {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border-top: 1px solid rgba(34, 33, 31, 0.18);
+      padding-top: 24px;
+    }
+
+    .intro-note {
+      color: var(--muted);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .enter-button {
+      min-width: 148px;
+      min-height: 52px;
+      border: 1px solid rgba(155, 125, 69, 0.52);
+      background: var(--charcoal);
+      color: var(--ivory);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+    }
+
+    .main-view {
+      min-height: 100dvh;
+      padding: calc(env(safe-area-inset-top) + 28px) 24px calc(env(safe-area-inset-bottom) + 54px);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .site-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: start;
+      margin-bottom: 44px;
+    }
+
+    .site-title {
+      margin: 0;
+      font-size: clamp(30px, 9vw, 42px);
+      font-weight: 400;
+      line-height: 1.06;
+      letter-spacing: 0;
+    }
+
+    .site-subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 12px;
+      line-height: 1.5;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .edit-button {
+      min-width: 52px;
+      min-height: 42px;
+      border: 1px solid rgba(34, 33, 31, 0.12);
+      background: rgba(255, 255, 255, 0.24);
+      color: var(--ink);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 13px;
+    }
+
+    .date-line {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+      color: var(--muted);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 13px;
+    }
+
+    .date-line::after {
+      width: 42px;
+      height: 1px;
+      background: var(--gold);
+      content: "";
+      opacity: 0.55;
+    }
+
+    .section {
+      margin-top: 44px;
+    }
+
+    .today-panel {
+      position: relative;
+      border-top: 1px solid rgba(34, 33, 31, 0.2);
+      border-bottom: 1px solid rgba(34, 33, 31, 0.14);
+      padding: 24px 0 30px;
+    }
+
+    .today-panel::before {
+      position: absolute;
+      top: -1px;
+      left: 0;
+      width: 74px;
+      height: 2px;
+      background: var(--gold);
+      content: "";
+    }
+
+    .section-label {
+      margin: 0 0 18px;
+      color: var(--gold);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .today-weekday {
+      margin: 0;
+      font-size: clamp(52px, 17vw, 78px);
+      font-weight: 400;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .today-heading {
+      margin: 26px 0 0;
+      color: var(--ink);
+      font-size: 21px;
+      font-weight: 400;
+      line-height: 1.35;
+    }
+
+    .today-items {
+      margin: 12px 0 0;
+      color: var(--charcoal);
+      font-size: 27px;
+      font-weight: 400;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .today-copy {
+      max-width: 300px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 24px;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    .section-code {
+      color: var(--muted);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .item-list {
+      display: grid;
+      gap: 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .item-row {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 10px;
+      align-items: center;
+      min-height: 56px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .item-index {
+      color: var(--gold);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+    }
+
+    .item-name {
+      color: var(--charcoal);
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    .quiet-note {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 22px 0;
+      color: var(--muted);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .extra-strip {
+      border-left: 2px solid rgba(155, 125, 69, 0.65);
+      padding-left: 18px;
+    }
+
+    .weekly-fold {
+      border-top: 1px solid rgba(34, 33, 31, 0.16);
+      border-bottom: 1px solid rgba(34, 33, 31, 0.12);
+    }
+
+    .weekly-fold summary {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      min-height: 66px;
+      list-style: none;
+      cursor: pointer;
+    }
+
+    .weekly-fold summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .weekly-summary-title {
+      display: grid;
+      gap: 5px;
+    }
+
+    .weekly-summary-title strong {
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    .weekly-summary-title span {
+      color: var(--muted);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .weekly-chevron {
+      width: 28px;
+      height: 28px;
+      border: 1px solid rgba(34, 33, 31, 0.16);
+      color: var(--gold);
+      display: grid;
+      place-items: center;
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 16px;
+      line-height: 1;
+      transition: transform 220ms ease;
+    }
+
+    .weekly-fold[open] .weekly-chevron {
+      transform: rotate(45deg);
+    }
+
+    .weekly-list {
+      border-top: 1px solid var(--line);
+      padding-bottom: 4px;
+    }
+
+    .week-row {
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      gap: 16px;
+      align-items: start;
+      border-bottom: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .week-row.is-today {
+      color: var(--charcoal);
+      background: linear-gradient(90deg, rgba(155, 125, 69, 0.12), transparent 62%);
+    }
+
+    .week-day {
+      color: var(--gold);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .week-items {
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .week-empty {
+      color: var(--muted);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 14px;
+    }
+
+    .editor-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      visibility: hidden;
+      background: transparent;
+      pointer-events: none;
+      transition: background 260ms ease, visibility 260ms ease;
+    }
+
+    .editor-overlay.is-open {
+      visibility: visible;
+      background: var(--veil);
+      pointer-events: auto;
+    }
+
+    .editor-sheet {
+      width: min(100%, 680px);
+      max-height: 88dvh;
+      overflow: auto;
+      border: 1px solid rgba(34, 33, 31, 0.16);
+      border-bottom: 0;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      transform: translateY(104%);
+      transition: transform 300ms ease;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .editor-overlay.is-open .editor-sheet {
+      transform: translateY(0);
+    }
+
+    .editor-inner {
+      padding: 12px 22px calc(env(safe-area-inset-bottom) + 24px);
+    }
+
+    .sheet-handle {
+      width: 44px;
+      height: 3px;
+      margin: 0 auto 20px;
+      background: rgba(34, 33, 31, 0.24);
+    }
+
+    .editor-head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 26px;
+    }
+
+    .editor-title {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    .close-button {
+      min-width: 52px;
+      min-height: 42px;
+      background: transparent;
+      color: var(--ink);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 22px;
+    }
+
+    .field {
+      display: grid;
+      gap: 9px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid rgba(34, 33, 31, 0.22);
+      border-radius: 0;
+      outline: 0;
+      background: rgba(255, 255, 255, 0.16);
+      color: var(--charcoal);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .field input {
+      min-height: 44px;
+      padding: 8px 0;
+    }
+
+    .field textarea {
+      min-height: 86px;
+      resize: vertical;
+      padding: 10px 0;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      border-color: var(--gold);
+    }
+
+    .form-note {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .weekly-editor {
+      display: grid;
+      gap: 18px;
+      border-top: 1px solid var(--line);
+      padding-top: 22px;
+    }
+
+    .save-bar {
+      position: sticky;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 26px -22px 0;
+      border-top: 1px solid var(--line);
+      padding: 16px 22px calc(env(safe-area-inset-bottom) + 16px);
+      background: rgba(251, 247, 238, 0.94);
+      backdrop-filter: blur(12px);
+    }
+
+    .save-button {
+      min-width: 132px;
+      min-height: 48px;
+      border: 1px solid rgba(155, 125, 69, 0.52);
+      background: var(--charcoal);
+      color: var(--ivory);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.06em;
+    }
+
+    .save-feedback {
+      min-height: 20px;
+      color: var(--verdigris);
+      font-family: Arial, "Noto Sans SC", sans-serif;
+      font-size: 13px;
+      opacity: 0;
+      transition: opacity 220ms ease;
+    }
+
+    .save-feedback.is-visible {
+      opacity: 1;
+    }
+
+    @media (min-width: 720px) {
+      .intro,
+      .main-view {
+        padding-right: max(32px, calc((100vw - 680px) / 2));
+        padding-left: max(32px, calc((100vw - 680px) / 2));
+      }
+
+      .editor-inner {
+        padding-right: 32px;
+        padding-left: 32px;
+      }
+
+      .save-bar {
+        margin-right: -32px;
+        margin-left: -32px;
+        padding-right: 32px;
+        padding-left: 32px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <section class="intro" id="intro" aria-label="进入提醒空间">
+      <div class="intro-mark">
+        <p class="kicker">Departure Ritual</p>
+        <h1 class="intro-title">离开之前，请完成一次安静的确认。</h1>
+        <p class="intro-copy">触碰、进入、查看。让出门前的最后一分钟保持清醒。</p>
+      </div>
+      <div class="intro-action">
+        <span class="intro-note">NFC desktop reminder card</span>
+        <button class="enter-button" id="enterButton" type="button">进入全屏</button>
+      </div>
+    </section>
+
+    <main class="main-view" id="mainView">
+      <header class="site-header">
+        <div>
+          <h2 class="site-title" id="pageTitle"></h2>
+          <p class="site-subtitle" id="pageSubtitle"></p>
+        </div>
+        <button class="edit-button" id="editButton" type="button">编辑</button>
+        <div class="date-line" id="dateLine"></div>
+      </header>
+
+      <section class="today-panel" aria-labelledby="todayTitle">
+        <p class="section-label">Today</p>
+        <h2 class="today-weekday" id="todayTitle"></h2>
+        <p class="today-heading" id="todayHeading"></p>
+        <div class="today-items" id="todayItems"></div>
+        <p class="today-copy" id="todayCopy"></p>
+      </section>
+
+      <section class="section" aria-labelledby="essentialsTitle">
+        <div class="section-heading">
+          <h2 class="section-title" id="essentialsTitle">固定携带</h2>
+          <span class="section-code">Essentials</span>
+        </div>
+        <div class="item-list" id="essentialsList"></div>
+      </section>
+
+      <section class="section" aria-labelledby="extraTitle">
+        <div class="section-heading">
+          <h2 class="section-title" id="extraTitle">今日额外</h2>
+          <span class="section-code">Additional</span>
+        </div>
+        <div id="todayExtraDetail"></div>
+      </section>
+
+      <section class="section" aria-labelledby="weeklyTitle">
+        <details class="weekly-fold">
+          <summary>
+            <span class="weekly-summary-title">
+              <strong id="weeklyTitle">完整周计划</strong>
+              <span>展开查看每周额外携带安排</span>
+            </span>
+            <span class="weekly-chevron" aria-hidden="true">＋</span>
+          </summary>
+          <div class="weekly-list" id="weeklyList"></div>
+        </details>
+      </section>
+    </main>
+
+    <div class="editor-overlay" id="editorOverlay" aria-hidden="true">
+      <aside class="editor-sheet" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+        <div class="editor-inner">
+          <div class="sheet-handle" aria-hidden="true"></div>
+          <div class="editor-head">
+            <h2 class="editor-title" id="editorTitle">编辑提醒内容</h2>
+            <button class="close-button" id="closeEditorButton" type="button">完成</button>
+          </div>
+
+          <form id="editorForm">
+            <div class="form-grid">
+              <div class="field">
+                <label for="titleInput">Title</label>
+                <input id="titleInput" type="text" autocomplete="off">
+              </div>
+
+              <div class="field">
+                <label for="subtitleInput">Subtitle</label>
+                <input id="subtitleInput" type="text" autocomplete="off">
+              </div>
+
+              <div class="field">
+                <label for="essentialsInput">Essentials</label>
+                <textarea id="essentialsInput" spellcheck="false"></textarea>
+                <p class="form-note">每行一个物品。</p>
+              </div>
+
+              <div class="weekly-editor" id="weeklyEditor"></div>
+            </div>
+
+            <div class="save-bar">
+              <span class="save-feedback" id="saveFeedback">已保存</span>
+              <button class="save-button" type="submit">保存修改</button>
+            </div>
+          </form>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const storageKey = "nfcDepartureCardData";
+
+    const weekMeta = [
+      { key: "monday", label: "周一" },
+      { key: "tuesday", label: "周二" },
+      { key: "wednesday", label: "周三" },
+      { key: "thursday", label: "周四" },
+      { key: "friday", label: "周五" },
+      { key: "saturday", label: "周六" },
+      { key: "sunday", label: "周天" }
+    ];
+
+    const defaultData = {
+      title: "离舍确认",
+      subtitle: "Before leaving the room",
+      essentials: ["水杯", "耳机", "解压泥"],
+      weeklyExtras: {
+        monday: [],
+        tuesday: [],
+        wednesday: ["篮球鞋", "洗面奶"],
+        thursday: [],
+        friday: [],
+        saturday: [],
+        sunday: ["洗面奶"]
+      }
+    };
+
+    let currentData = loadData();
+    let feedbackTimer;
+
+    const elements = {
+      intro: document.getElementById("intro"),
+      enterButton: document.getElementById("enterButton"),
+      editButton: document.getElementById("editButton"),
+      pageTitle: document.getElementById("pageTitle"),
+      pageSubtitle: document.getElementById("pageSubtitle"),
+      dateLine: document.getElementById("dateLine"),
+      todayTitle: document.getElementById("todayTitle"),
+      todayHeading: document.getElementById("todayHeading"),
+      todayItems: document.getElementById("todayItems"),
+      todayCopy: document.getElementById("todayCopy"),
+      essentialsList: document.getElementById("essentialsList"),
+      todayExtraDetail: document.getElementById("todayExtraDetail"),
+      weeklyList: document.getElementById("weeklyList"),
+      editorOverlay: document.getElementById("editorOverlay"),
+      closeEditorButton: document.getElementById("closeEditorButton"),
+      editorForm: document.getElementById("editorForm"),
+      titleInput: document.getElementById("titleInput"),
+      subtitleInput: document.getElementById("subtitleInput"),
+      essentialsInput: document.getElementById("essentialsInput"),
+      weeklyEditor: document.getElementById("weeklyEditor"),
+      saveFeedback: document.getElementById("saveFeedback")
+    };
+
+    renderWeeklyEditor();
+    renderPage();
+
+    elements.enterButton.addEventListener("click", enterExperience);
+    elements.editButton.addEventListener("click", openEditor);
+    elements.closeEditorButton.addEventListener("click", closeEditor);
+    elements.editorOverlay.addEventListener("click", (event) => {
+      if (event.target === elements.editorOverlay) {
+        closeEditor();
+      }
+    });
+    elements.editorForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      currentData = collectEditorData();
+      saveData(currentData);
+      renderPage();
+      showSavedFeedback();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeEditor();
+      }
+    });
+
+    function loadData() {
+      try {
+        const stored = localStorage.getItem(storageKey);
+        if (!stored) {
+          return cloneDefaultData();
+        }
+        return normalizeData(JSON.parse(stored));
+      } catch (error) {
+        return cloneDefaultData();
+      }
+    }
+
+    function cloneDefaultData() {
+      return JSON.parse(JSON.stringify(defaultData));
+    }
+
+    function saveData(data) {
+      localStorage.setItem(storageKey, JSON.stringify(data));
+    }
+
+    function normalizeData(data) {
+      const weeklyExtras = {};
+      weekMeta.forEach((day) => {
+        weeklyExtras[day.key] = Array.isArray(data?.weeklyExtras?.[day.key])
+          ? data.weeklyExtras[day.key].filter(Boolean)
+          : [];
+      });
+
+      return {
+        title: typeof data?.title === "string" && data.title.trim() ? data.title.trim() : defaultData.title,
+        subtitle: typeof data?.subtitle === "string" ? data.subtitle.trim() : defaultData.subtitle,
+        essentials: Array.isArray(data?.essentials) && data.essentials.length
+          ? data.essentials.filter(Boolean)
+          : [...defaultData.essentials],
+        weeklyExtras
+      };
+    }
+
+    function renderPage() {
+      const todayKey = getTodayKey();
+      const todayLabel = getTodayLabel(todayKey);
+      const todayExtras = currentData.weeklyExtras[todayKey] || [];
+
+      document.title = currentData.title || defaultData.title;
+      elements.pageTitle.textContent = currentData.title;
+      elements.pageSubtitle.textContent = currentData.subtitle;
+      elements.dateLine.textContent = `${todayLabel} · ${formatTodayDate()}`;
+      elements.todayTitle.textContent = todayLabel;
+
+      renderTodayFocus(todayExtras);
+      renderEssentials();
+      renderTodayExtraDetail(todayExtras);
+      renderWeeklyPlan(todayKey);
+    }
+
+    function renderTodayFocus(items) {
+      if (items.length) {
+        elements.todayHeading.textContent = "今日额外携带";
+        elements.todayItems.textContent = items.join(" / ");
+        elements.todayCopy.textContent = "离开前，请确认它们已经在包里。";
+        return;
+      }
+
+      elements.todayHeading.textContent = "今日无额外携带";
+      elements.todayItems.textContent = "保持轻装";
+      elements.todayCopy.textContent = "确认固定物品即可。";
+    }
+
+    function renderEssentials() {
+      elements.essentialsList.innerHTML = "";
+      currentData.essentials.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "item-row";
+        row.innerHTML = `
+          <span class="item-index">${String(index + 1).padStart(2, "0")}</span>
+          <span class="item-name"></span>
+        `;
+        row.querySelector(".item-name").textContent = item;
+        elements.essentialsList.appendChild(row);
+      });
+    }
+
+    function renderTodayExtraDetail(items) {
+      elements.todayExtraDetail.innerHTML = "";
+
+      if (!items.length) {
+        const note = document.createElement("div");
+        note.className = "quiet-note";
+        note.textContent = "今日无额外携带，固定物品已足够。";
+        elements.todayExtraDetail.appendChild(note);
+        return;
+      }
+
+      const list = document.createElement("div");
+      list.className = "item-list extra-strip";
+      items.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "item-row";
+        row.innerHTML = `
+          <span class="item-index">A${String(index + 1).padStart(2, "0")}</span>
+          <span class="item-name"></span>
+        `;
+        row.querySelector(".item-name").textContent = item;
+        list.appendChild(row);
+      });
+      elements.todayExtraDetail.appendChild(list);
+    }
+
+    function renderWeeklyPlan(todayKey) {
+      elements.weeklyList.innerHTML = "";
+      weekMeta.forEach((day) => {
+        const items = currentData.weeklyExtras[day.key] || [];
+        const row = document.createElement("div");
+        row.className = `week-row${day.key === todayKey ? " is-today" : ""}`;
+
+        const dayLabel = document.createElement("div");
+        dayLabel.className = "week-day";
+        dayLabel.textContent = day.label;
+
+        const content = document.createElement("div");
+        content.className = items.length ? "week-items" : "week-empty";
+        content.textContent = items.length ? items.join(" / ") : "轻装";
+
+        row.append(dayLabel, content);
+        elements.weeklyList.appendChild(row);
+      });
+    }
+
+    async function enterExperience() {
+      try {
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+      } catch (error) {
+        // Fullscreen support varies on mobile browsers; the page still works without it.
+      } finally {
+        elements.intro.classList.add("is-hidden");
+      }
+    }
+
+    function openEditor() {
+      elements.titleInput.value = currentData.title;
+      elements.subtitleInput.value = currentData.subtitle;
+      elements.essentialsInput.value = currentData.essentials.join("\n");
+      weekMeta.forEach((day) => {
+        const input = document.getElementById(`${day.key}Input`);
+        input.value = (currentData.weeklyExtras[day.key] || []).join("\n");
+      });
+
+      elements.editorOverlay.classList.add("is-open");
+      elements.editorOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeEditor() {
+      elements.editorOverlay.classList.remove("is-open");
+      elements.editorOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    function collectEditorData() {
+      const weeklyExtras = {};
+      weekMeta.forEach((day) => {
+        weeklyExtras[day.key] = linesToArray(document.getElementById(`${day.key}Input`).value);
+      });
+
+      return normalizeData({
+        title: elements.titleInput.value,
+        subtitle: elements.subtitleInput.value,
+        essentials: linesToArray(elements.essentialsInput.value),
+        weeklyExtras
+      });
+    }
+
+    function renderWeeklyEditor() {
+      weekMeta.forEach((day) => {
+        const field = document.createElement("div");
+        field.className = "field";
+        field.innerHTML = `
+          <label for="${day.key}Input">${day.label} Extra</label>
+          <textarea id="${day.key}Input" spellcheck="false"></textarea>
+        `;
+        elements.weeklyEditor.appendChild(field);
+      });
+    }
+
+    function linesToArray(value) {
+      return value
+        .split("\n")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    function showSavedFeedback() {
+      clearTimeout(feedbackTimer);
+      elements.saveFeedback.classList.add("is-visible");
+      feedbackTimer = window.setTimeout(() => {
+        elements.saveFeedback.classList.remove("is-visible");
+      }, 1500);
+    }
+
+    function getTodayKey() {
+      const index = new Date().getDay();
+      const keys = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+      return keys[index];
+    }
+
+    function getTodayLabel(key) {
+      return weekMeta.find((day) => day.key === key)?.label || "今日";
+    }
+
+    function formatTodayDate() {
+      const now = new Date();
+      return `${now.getMonth() + 1}月${now.getDate()}日`;
+    }
+  </script>
+</body>
+</html>
