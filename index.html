@@ -3,401 +3,755 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f4efe6">
+  <meta name="theme-color" content="#f7f3ec">
   <title>离舍确认</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --ivory: #f4efe6;
-      --stone: #d8ccbb;
-      --stone-deep: #b7a895;
-      --charcoal: #22211f;
-      --ink: #34302b;
-      --muted: #80786d;
-      --gold: #9b7d45;
-      --verdigris: #4c6961;
-      --line: rgba(34, 33, 31, 0.12);
-      --veil: rgba(34, 33, 31, 0.46);
-      --panel: #fbf7ee;
-      --shadow: 0 24px 70px rgba(34, 33, 31, 0.16);
-      font-family: "Times New Roman", "Noto Serif SC", "Songti SC", serif;
+      --ivory: #f7f3ec;
+      --parchment: #efe9de;
+      --linen: #e8e0d2;
+      --stone: #c4b9a8;
+      --stone-deep: #a89b87;
+      --charcoal: #1a1917;
+      --ink: #2c2a26;
+      --muted: #7a7164;
+      --faint: #b5aa99;
+      --gold: #8b6f3a;
+      --gold-light: #c4a35a;
+      --gold-glow: rgba(139, 111, 58, 0.08);
+      --sage: #5a7a6e;
+      --sage-light: #6b8f80;
+      --panel: #fcf9f3;
+      --panel-hover: rgba(139, 111, 58, 0.04);
+      --border: rgba(26, 25, 23, 0.08);
+      --border-strong: rgba(26, 25, 23, 0.15);
+      --veil: rgba(26, 25, 23, 0.5);
+      --shadow-soft: 0 1px 3px rgba(26, 25, 23, 0.04);
+      --shadow-card: 0 8px 40px rgba(26, 25, 23, 0.06), 0 1px 2px rgba(26, 25, 23, 0.04);
+      --shadow-sheet: 0 -16px 64px rgba(26, 25, 23, 0.12);
+      --radius: 3px;
+      --font-display: "Cormorant Garamond", "Noto Serif SC", "Songti SC", Georgia, serif;
+      --font-body: "DM Sans", "Noto Sans SC", "PingFang SC", -apple-system, sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    *, *::before, *::after { box-sizing: border-box; }
 
     html {
       min-height: 100%;
       background: var(--ivory);
+      scroll-behavior: smooth;
     }
 
     body {
       min-height: 100%;
       margin: 0;
       color: var(--charcoal);
-      background:
-        linear-gradient(115deg, rgba(255, 255, 255, 0.44), rgba(255, 255, 255, 0) 34%),
-        linear-gradient(180deg, #f7f1e7 0%, #eee5d8 52%, #f8f3ea 100%);
-      font-family: "Times New Roman", "Noto Serif SC", "Songti SC", serif;
+      background: var(--ivory);
+      font-family: var(--font-body);
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
     }
 
+    /* Subtle paper texture */
     body::before {
       position: fixed;
       inset: 0;
-      z-index: -1;
+      z-index: 0;
       pointer-events: none;
       content: "";
-      opacity: 0.23;
+      opacity: 0.35;
       background-image:
-        radial-gradient(circle at 12% 8%, rgba(34, 33, 31, 0.08) 0 1px, transparent 1.4px),
-        radial-gradient(circle at 82% 34%, rgba(155, 125, 69, 0.08) 0 1px, transparent 1.5px);
-      background-size: 28px 28px, 42px 42px;
+        radial-gradient(ellipse at 20% 50%, rgba(139, 111, 58, 0.03) 0%, transparent 70%),
+        radial-gradient(ellipse at 80% 20%, rgba(90, 122, 110, 0.02) 0%, transparent 60%);
     }
 
-    button,
-    input,
-    textarea {
-      font: inherit;
-    }
-
-    button {
-      border: 0;
-      cursor: pointer;
-    }
+    button, input, textarea { font: inherit; }
+    button { border: 0; cursor: pointer; background: none; }
 
     .app-shell {
+      position: relative;
+      z-index: 1;
       min-height: 100dvh;
-      overflow-x: hidden;
     }
 
+    /* ─── INTRO ─── */
     .intro {
       position: fixed;
       inset: 0;
-      z-index: 10;
-      display: grid;
-      grid-template-rows: 1fr auto;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       min-height: 100dvh;
-      padding: calc(env(safe-area-inset-top) + 28px) 28px calc(env(safe-area-inset-bottom) + 38px);
-      background:
-        linear-gradient(90deg, transparent 0, transparent 26px, rgba(155, 125, 69, 0.2) 27px, transparent 28px),
-        linear-gradient(180deg, #f9f4ea 0%, #eee5d8 100%);
-      transition: opacity 420ms ease, visibility 420ms ease;
+      padding: 40px 32px;
+      background: var(--ivory);
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 600ms cubic-bezier(0.4, 0, 0.2, 1), visibility 600ms;
     }
 
     .intro.is-hidden {
-      visibility: hidden;
       opacity: 0;
+      visibility: hidden;
       pointer-events: none;
     }
 
-    .intro-mark {
-      align-self: center;
-      max-width: 340px;
-      transform: translateY(7dvh);
+    .intro-inner {
+      text-align: center;
+      max-width: 380px;
     }
 
-    .kicker {
-      margin: 0 0 18px;
+    .intro-icon {
+      width: 1px;
+      height: 48px;
+      background: var(--gold);
+      margin: 0 auto 36px;
+      opacity: 0;
+      transform: scaleY(0);
+      transform-origin: top;
+      animation: lineGrow 600ms ease 200ms forwards;
+    }
+
+    @keyframes lineGrow {
+      to { opacity: 0.5; transform: scaleY(1); }
+    }
+
+    .intro-kicker {
+      margin: 0 0 24px;
       color: var(--gold);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.18em;
+      font-family: var(--font-body);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.3em;
       text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeUp 500ms ease 400ms forwards;
     }
 
     .intro-title {
-      margin: 0;
+      margin: 0 0 20px;
       color: var(--charcoal);
-      font-size: clamp(34px, 11vw, 54px);
-      font-weight: 400;
-      line-height: 1.12;
-      letter-spacing: 0;
+      font-family: var(--font-display);
+      font-size: clamp(28px, 8vw, 40px);
+      font-weight: 300;
+      line-height: 1.3;
+      letter-spacing: 0.01em;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeUp 500ms ease 550ms forwards;
     }
 
     .intro-copy {
-      max-width: 260px;
-      margin: 22px 0 0;
+      margin: 0 0 48px;
       color: var(--muted);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 14px;
-      line-height: 1.75;
+      font-size: 13px;
+      font-weight: 300;
+      line-height: 1.8;
+      letter-spacing: 0.02em;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeUp 500ms ease 700ms forwards;
     }
 
-    .intro-action {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      border-top: 1px solid rgba(34, 33, 31, 0.18);
-      padding-top: 24px;
+    .intro-inner .enter-button {
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeUp 500ms ease 850ms forwards;
     }
 
-    .intro-note {
-      color: var(--muted);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 12px;
-      line-height: 1.5;
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .enter-button {
-      min-width: 148px;
-      min-height: 52px;
-      border: 1px solid rgba(155, 125, 69, 0.52);
-      background: var(--charcoal);
-      color: var(--ivory);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 14px;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: var(--charcoal);
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      transition: color 300ms ease;
+    }
+
+    .enter-button .btn-line {
+      display: block;
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+      transition: width 400ms cubic-bezier(0.4, 0, 0.2, 1), background 300ms ease;
+    }
+
+    .enter-button:hover {
+      color: var(--gold);
+    }
+
+    .enter-button:hover .btn-line {
+      width: 64px;
+      background: var(--gold);
+    }
+
+    .intro-footer {
+      position: absolute;
+      bottom: calc(env(safe-area-inset-bottom) + 32px);
+      left: 0;
+      right: 0;
+      text-align: center;
+      color: var(--faint);
+      font-size: 11px;
       letter-spacing: 0.08em;
     }
 
+    /* ─── MAIN VIEW ─── */
     .main-view {
       min-height: 100dvh;
-      padding: calc(env(safe-area-inset-top) + 28px) 24px calc(env(safe-area-inset-bottom) + 54px);
-      -webkit-overflow-scrolling: touch;
+      padding: calc(env(safe-area-inset-top) + 24px) 20px calc(env(safe-area-inset-bottom) + 60px);
     }
 
+    /* ─── HEADER ─── */
     .site-header {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 20px;
-      align-items: start;
-      margin-bottom: 44px;
+      max-width: 560px;
+      margin: 0 auto 0;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
     }
 
     .site-title {
       margin: 0;
-      font-size: clamp(30px, 9vw, 42px);
-      font-weight: 400;
-      line-height: 1.06;
+      font-family: var(--font-display);
+      font-size: clamp(28px, 8vw, 36px);
+      font-weight: 300;
+      line-height: 1.15;
       letter-spacing: 0;
+      color: var(--charcoal);
     }
 
-    .site-subtitle {
-      margin: 10px 0 0;
+    .edit-button {
+      flex-shrink: 0;
+      margin-top: 8px;
+      padding: 4px 0;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid transparent;
+      color: var(--faint);
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 250ms ease, border-color 250ms ease;
+    }
+
+    .edit-button:hover {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+    }
+
+    .header-rule {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0 0;
+      position: relative;
+    }
+
+    .header-rule::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 48px;
+      height: 1px;
+      background: var(--gold);
+    }
+
+    .date-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0 0;
       color: var(--muted);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 12px;
-      line-height: 1.5;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+    }
+
+    .date-line-right {
+      color: var(--faint);
+      font-size: 10px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
     }
 
-    .edit-button {
-      min-width: 52px;
-      min-height: 42px;
-      border: 1px solid rgba(34, 33, 31, 0.12);
-      background: rgba(255, 255, 255, 0.24);
-      color: var(--ink);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 13px;
-    }
-
-    .date-line {
-      grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      border-top: 1px solid var(--line);
-      padding-top: 16px;
-      color: var(--muted);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 13px;
-    }
-
-    .date-line::after {
-      width: 42px;
-      height: 1px;
-      background: var(--gold);
-      content: "";
-      opacity: 0.55;
-    }
-
-    .section {
-      margin-top: 44px;
-    }
-
-    .today-panel {
+    /* ─── TODAY HERO ─── */
+    .today-hero {
+      max-width: 560px;
+      margin: 40px auto 0;
+      padding: 36px 28px 32px;
+      background: var(--panel);
+      border: 1px solid var(--border);
       position: relative;
-      border-top: 1px solid rgba(34, 33, 31, 0.2);
-      border-bottom: 1px solid rgba(34, 33, 31, 0.14);
-      padding: 24px 0 30px;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp 500ms ease 100ms forwards;
     }
 
-    .today-panel::before {
+    .today-hero::before {
+      content: "";
       position: absolute;
       top: -1px;
-      left: 0;
-      width: 74px;
+      left: -1px;
+      right: -1px;
       height: 2px;
       background: var(--gold);
-      content: "";
     }
 
-    .section-label {
-      margin: 0 0 18px;
+    .today-label {
+      margin: 0 0 8px;
       color: var(--gold);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.18em;
+      font-family: var(--font-body);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.35em;
       text-transform: uppercase;
     }
 
     .today-weekday {
-      margin: 0;
-      font-size: clamp(52px, 17vw, 78px);
-      font-weight: 400;
-      line-height: 0.98;
-      letter-spacing: 0;
-    }
-
-    .today-heading {
-      margin: 26px 0 0;
-      color: var(--ink);
-      font-size: 21px;
-      font-weight: 400;
-      line-height: 1.35;
-    }
-
-    .today-items {
-      margin: 12px 0 0;
+      margin: 0 0 4px;
+      font-family: var(--font-display);
+      font-size: clamp(48px, 14vw, 72px);
+      font-weight: 300;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
       color: var(--charcoal);
-      font-size: 27px;
-      font-weight: 400;
-      line-height: 1.25;
-      letter-spacing: 0;
     }
 
-    .today-copy {
-      max-width: 300px;
-      margin: 18px 0 0;
-      color: var(--muted);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 14px;
-      line-height: 1.75;
+    .today-date-sub {
+      margin: 0 0 28px;
+      color: var(--faint);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+    }
+
+    .today-divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .today-progress {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: var(--gold);
+      transition: width 500ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .today-progress.is-full {
+      background: var(--sage);
+    }
+
+    .today-status {
+      margin: 0 0 20px;
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+
+    /* ─── CHECKLIST ─── */
+    .checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 200ms ease, opacity 400ms ease, transform 400ms ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .check-item.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .check-item:last-child {
+      border-bottom: 0;
+    }
+
+    .check-item:active {
+      background: var(--panel-hover);
+    }
+
+    .check-box {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      border: 1.5px solid var(--stone);
+      border-radius: 0;
+      display: grid;
+      place-items: center;
+      transition: all 300ms ease, box-shadow 300ms ease;
+      position: relative;
+    }
+
+    .check-box svg {
+      width: 12px;
+      height: 12px;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .check-box svg path {
+      stroke: var(--gold);
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    .check-item.is-checked .check-box {
+      border-color: var(--gold);
+      background: var(--gold-glow);
+      box-shadow: 0 0 0 3px rgba(139, 111, 58, 0.06);
+    }
+
+    .check-item.is-checked .check-box svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .check-item.is-checked .check-box::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border: 1px solid rgba(139, 111, 58, 0.12);
+      opacity: 0;
+      animation: checkPulse 400ms ease forwards;
+    }
+
+    @keyframes checkPulse {
+      0% { opacity: 0.6; transform: scale(0.8); }
+      100% { opacity: 0; transform: scale(1.3); }
+    }
+
+    .check-text {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--charcoal);
+      transition: all 300ms ease;
+    }
+
+    .check-item.is-checked .check-text {
+      color: var(--stone-deep);
+      text-decoration: line-through;
+      text-decoration-color: var(--stone);
+      text-decoration-thickness: 1px;
+    }
+
+    .check-tag {
+      margin-left: auto;
+      flex-shrink: 0;
+      padding: 3px 10px;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      color: var(--faint);
+      transition: all 300ms ease;
+    }
+
+    .check-item.is-checked .check-tag {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* ─── CONFIRM ACTION ─── */
+    .confirm-section {
+      max-width: 560px;
+      margin: 36px auto 0;
+      text-align: center;
+    }
+
+    .confirm-button {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 0 40px;
+      min-height: 56px;
+      border: 1px solid var(--border-strong);
+      border-radius: 0;
+      background: transparent;
+      color: var(--charcoal);
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      transition: all 500ms cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .confirm-button::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0;
+      background: var(--charcoal);
+      transition: height 500ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .confirm-button:hover::before {
+      height: 100%;
+    }
+
+    .confirm-button span {
+      position: relative;
+      z-index: 1;
+      transition: color 400ms ease;
+    }
+
+    .confirm-button:hover span {
+      color: var(--ivory);
+    }
+
+    .confirm-button .btn-deco {
+      position: relative;
+      z-index: 1;
+      width: 32px;
+      height: 1px;
+      background: var(--gold);
+      transition: background 400ms ease, width 400ms ease;
+    }
+
+    .confirm-button:hover .btn-deco {
+      background: var(--gold-light);
+      width: 48px;
+    }
+
+    .confirm-button .check-icon {
+      position: relative;
+      z-index: 1;
+      width: 18px;
+      height: 18px;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .confirm-button .check-icon path {
+      stroke: var(--gold);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .confirm-button.is-done {
+      border-color: var(--sage);
+      pointer-events: none;
+    }
+
+    .confirm-button.is-done::before {
+      display: none;
+    }
+
+    .confirm-button.is-done span {
+      color: var(--sage);
+    }
+
+    .confirm-button.is-done .btn-deco {
+      display: none;
+    }
+
+    .confirm-button.is-done .check-icon {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .confirm-button.is-done .check-icon path {
+      stroke: var(--sage);
+    }
+
+    .confirm-hint {
+      margin: 16px 0 0;
+      color: var(--faint);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      transition: all 400ms ease;
+    }
+
+    .confirm-section.is-complete .confirm-hint {
+      color: var(--sage);
+    }
+
+    /* ─── EXTRA SECTION ─── */
+    .detail-section {
+      max-width: 560px;
+      margin: 48px auto 0;
     }
 
     .section-heading {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
+      align-items: baseline;
+      gap: 16px;
       margin-bottom: 16px;
     }
 
     .section-title {
       margin: 0;
-      color: var(--ink);
-      font-size: 24px;
+      font-family: var(--font-display);
+      font-size: 20px;
       font-weight: 400;
+      color: var(--ink);
       line-height: 1.2;
     }
 
     .section-code {
-      color: var(--muted);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 11px;
-      letter-spacing: 0.15em;
+      color: var(--faint);
+      font-size: 9px;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      white-space: nowrap;
     }
 
-    .item-list {
-      display: grid;
-      gap: 0;
-      border-top: 1px solid var(--line);
+    .section-rule {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 16px;
     }
 
-    .item-row {
-      display: grid;
-      grid-template-columns: 48px 1fr;
-      gap: 10px;
+    .detail-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .detail-row {
+      display: flex;
       align-items: center;
-      min-height: 56px;
-      border-bottom: 1px solid var(--line);
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
     }
 
-    .item-index {
+    .detail-row:last-child { border-bottom: 0; }
+
+    .detail-index {
+      width: 32px;
+      flex-shrink: 0;
       color: var(--gold);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 11px;
-      letter-spacing: 0.12em;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
     }
 
-    .item-name {
+    .detail-name {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 400;
       color: var(--charcoal);
-      font-size: 22px;
-      line-height: 1.25;
+      line-height: 1.3;
     }
 
-    .quiet-note {
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-      padding: 22px 0;
-      color: var(--muted);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 14px;
-      line-height: 1.75;
+    .detail-empty {
+      padding: 20px 0;
+      color: var(--faint);
+      font-size: 13px;
+      font-style: italic;
+      font-family: var(--font-display);
     }
 
     .extra-strip {
-      border-left: 2px solid rgba(155, 125, 69, 0.65);
-      padding-left: 18px;
+      border-left: 2px solid var(--gold);
+      padding-left: 20px;
+      margin-left: 8px;
+    }
+
+    .extra-strip .detail-row {
+      padding-left: 0;
+    }
+
+    /* ─── WEEKLY FOLD ─── */
+    .weekly-section {
+      max-width: 560px;
+      margin: 40px auto 0;
     }
 
     .weekly-fold {
-      border-top: 1px solid rgba(34, 33, 31, 0.16);
-      border-bottom: 1px solid rgba(34, 33, 31, 0.12);
+      border-top: 1px solid var(--border);
     }
 
     .weekly-fold summary {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 16px;
+      display: flex;
       align-items: center;
-      min-height: 66px;
-      list-style: none;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 0;
       cursor: pointer;
+      list-style: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .weekly-fold summary::-webkit-details-marker {
-      display: none;
-    }
+    .weekly-fold summary::-webkit-details-marker { display: none; }
 
-    .weekly-summary-title {
-      display: grid;
-      gap: 5px;
-    }
-
-    .weekly-summary-title strong {
-      color: var(--ink);
-      font-size: 20px;
+    .weekly-summary-left strong {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 18px;
       font-weight: 400;
-      line-height: 1.2;
+      color: var(--ink);
+      line-height: 1.3;
     }
 
-    .weekly-summary-title span {
-      color: var(--muted);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 12px;
-      line-height: 1.45;
+    .weekly-summary-left span {
+      display: block;
+      margin-top: 3px;
+      color: var(--faint);
+      font-size: 11px;
+      letter-spacing: 0.04em;
     }
 
     .weekly-chevron {
-      width: 28px;
-      height: 28px;
-      border: 1px solid rgba(34, 33, 31, 0.16);
-      color: var(--gold);
+      width: 24px;
+      height: 24px;
       display: grid;
       place-items: center;
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 16px;
+      color: var(--gold);
+      font-size: 18px;
       line-height: 1;
-      transition: transform 220ms ease;
+      transition: transform 250ms ease;
     }
 
     .weekly-fold[open] .weekly-chevron {
@@ -405,54 +759,63 @@
     }
 
     .weekly-list {
-      border-top: 1px solid var(--line);
-      padding-bottom: 4px;
+      border-top: 1px solid var(--border);
+      padding-bottom: 8px;
     }
 
     .week-row {
-      display: grid;
-      grid-template-columns: 54px 1fr;
-      gap: 16px;
-      align-items: start;
-      border-bottom: 1px solid var(--line);
-      padding: 16px 0;
+      display: flex;
+      gap: 20px;
+      align-items: baseline;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
     }
 
+    .week-row:last-child { border-bottom: 0; }
+
     .week-row.is-today {
-      color: var(--charcoal);
-      background: linear-gradient(90deg, rgba(155, 125, 69, 0.12), transparent 62%);
+      background: linear-gradient(90deg, var(--gold-glow), transparent 70%);
+      padding-left: 12px;
+      margin-left: -12px;
+      margin-right: -12px;
+      padding-right: 12px;
     }
 
     .week-day {
+      width: 36px;
+      flex-shrink: 0;
       color: var(--gold);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 13px;
-      line-height: 1.5;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
     }
 
     .week-items {
+      font-family: var(--font-display);
+      font-size: 16px;
       color: var(--ink);
-      font-size: 18px;
-      line-height: 1.5;
+      line-height: 1.4;
     }
 
     .week-empty {
-      color: var(--muted);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 14px;
+      color: var(--faint);
+      font-size: 13px;
+      font-style: italic;
+      font-family: var(--font-display);
     }
 
+    /* ─── EDITOR ─── */
     .editor-overlay {
       position: fixed;
       inset: 0;
-      z-index: 20;
+      z-index: 200;
       display: flex;
       align-items: flex-end;
       justify-content: center;
       visibility: hidden;
       background: transparent;
       pointer-events: none;
-      transition: background 260ms ease, visibility 260ms ease;
+      transition: background 300ms ease, visibility 300ms;
     }
 
     .editor-overlay.is-open {
@@ -462,15 +825,15 @@
     }
 
     .editor-sheet {
-      width: min(100%, 680px);
+      width: min(100%, 640px);
       max-height: 88dvh;
       overflow: auto;
-      border: 1px solid rgba(34, 33, 31, 0.16);
+      border: 1px solid var(--border-strong);
       border-bottom: 0;
       background: var(--panel);
-      box-shadow: var(--shadow);
-      transform: translateY(104%);
-      transition: transform 300ms ease;
+      box-shadow: var(--shadow-sheet);
+      transform: translateY(100%);
+      transition: transform 380ms cubic-bezier(0.32, 0.72, 0, 1);
       -webkit-overflow-scrolling: touch;
     }
 
@@ -479,56 +842,67 @@
     }
 
     .editor-inner {
-      padding: 12px 22px calc(env(safe-area-inset-bottom) + 24px);
+      padding: 16px 28px calc(env(safe-area-inset-bottom) + 28px);
     }
 
     .sheet-handle {
-      width: 44px;
+      width: 36px;
       height: 3px;
-      margin: 0 auto 20px;
-      background: rgba(34, 33, 31, 0.24);
+      margin: 0 auto 24px;
+      background: var(--stone);
+      border-radius: 2px;
+      opacity: 0.5;
     }
 
     .editor-head {
       display: flex;
-      align-items: start;
+      align-items: center;
       justify-content: space-between;
-      gap: 18px;
-      margin-bottom: 26px;
+      gap: 16px;
+      margin-bottom: 32px;
     }
 
     .editor-title {
       margin: 0;
-      font-size: 26px;
+      font-family: var(--font-display);
+      font-size: 24px;
       font-weight: 400;
+      color: var(--charcoal);
       line-height: 1.2;
     }
 
     .close-button {
-      min-width: 52px;
-      min-height: 42px;
+      padding: 4px 0;
       background: transparent;
-      color: var(--ink);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 14px;
+      border: 0;
+      border-bottom: 1px solid transparent;
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: border-color 250ms ease;
+    }
+
+    .close-button:hover {
+      border-bottom-color: var(--gold);
     }
 
     .form-grid {
       display: grid;
-      gap: 22px;
+      gap: 28px;
     }
 
     .field {
       display: grid;
-      gap: 9px;
+      gap: 8px;
     }
 
     .field label {
       color: var(--muted);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
     }
 
@@ -536,14 +910,15 @@
     .field textarea {
       width: 100%;
       border: 0;
-      border-bottom: 1px solid rgba(34, 33, 31, 0.22);
+      border-bottom: 1px solid var(--border-strong);
       border-radius: 0;
       outline: 0;
-      background: rgba(255, 255, 255, 0.16);
+      background: transparent;
       color: var(--charcoal);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 16px;
-      line-height: 1.55;
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
+      transition: border-color 250ms ease;
     }
 
     .field input {
@@ -552,7 +927,7 @@
     }
 
     .field textarea {
-      min-height: 86px;
+      min-height: 80px;
       resize: vertical;
       padding: 10px 0;
     }
@@ -563,18 +938,17 @@
     }
 
     .form-note {
-      margin: 2px 0 0;
-      color: var(--muted);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 12px;
+      margin: 4px 0 0;
+      color: var(--faint);
+      font-size: 11px;
       line-height: 1.6;
     }
 
     .weekly-editor {
       display: grid;
-      gap: 18px;
-      border-top: 1px solid var(--line);
-      padding-top: 22px;
+      gap: 20px;
+      border-top: 1px solid var(--border);
+      padding-top: 28px;
     }
 
     .save-bar {
@@ -584,164 +958,316 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      margin: 26px -22px 0;
-      border-top: 1px solid var(--line);
-      padding: 16px 22px calc(env(safe-area-inset-bottom) + 16px);
-      background: rgba(251, 247, 238, 0.94);
-      backdrop-filter: blur(12px);
+      margin: 32px -28px 0;
+      border-top: 1px solid var(--border);
+      padding: 16px 28px calc(env(safe-area-inset-bottom) + 16px);
+      background: rgba(252, 249, 243, 0.95);
+      backdrop-filter: blur(16px);
     }
 
     .save-button {
-      min-width: 132px;
-      min-height: 48px;
-      border: 1px solid rgba(155, 125, 69, 0.52);
+      position: relative;
+      min-width: 120px;
+      min-height: 44px;
+      border: 1px solid var(--charcoal);
+      border-radius: 0;
+      background: transparent;
+      color: var(--charcoal);
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      transition: all 400ms ease;
+      overflow: hidden;
+    }
+
+    .save-button::before {
+      content: "";
+      position: absolute;
+      inset: 0;
       background: var(--charcoal);
+      transform: translateY(101%);
+      transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .save-button span {
+      position: relative;
+      z-index: 1;
+      transition: color 300ms ease;
+    }
+
+    .save-button:hover::before {
+      transform: translateY(0);
+    }
+
+    .save-button:hover span {
       color: var(--ivory);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 14px;
-      letter-spacing: 0.06em;
     }
 
     .save-feedback {
       min-height: 20px;
-      color: var(--verdigris);
-      font-family: Arial, "Noto Sans SC", sans-serif;
-      font-size: 13px;
+      color: var(--sage);
+      font-size: 12px;
+      letter-spacing: 0.04em;
       opacity: 0;
-      transition: opacity 220ms ease;
+      transition: opacity 250ms ease;
     }
 
     .save-feedback.is-visible {
       opacity: 1;
     }
 
+    /* ─── COMPLETION OVERLAY ─── */
+    .completion-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--ivory);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 600ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .completion-overlay.is-visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .completion-icon {
+      width: 64px;
+      height: 64px;
+      border: 1.5px solid var(--gold);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin-bottom: 28px;
+      transform: scale(0.6);
+      opacity: 0;
+      transition: all 500ms cubic-bezier(0.34, 1.56, 0.64, 1) 200ms;
+    }
+
+    .completion-overlay.is-visible .completion-icon {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .completion-icon svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    .completion-icon svg path {
+      stroke: var(--gold);
+      stroke-width: 2;
+      fill: none;
+      stroke-dasharray: 40;
+      stroke-dashoffset: 40;
+      transition: stroke-dashoffset 600ms ease 500ms;
+    }
+
+    .completion-overlay.is-visible .completion-icon svg path {
+      stroke-dashoffset: 0;
+    }
+
+    .completion-line {
+      width: 0;
+      height: 1px;
+      background: var(--gold);
+      margin-bottom: 28px;
+      transition: width 500ms ease 600ms;
+    }
+
+    .completion-overlay.is-visible .completion-line {
+      width: 48px;
+    }
+
+    .completion-text {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 7vw, 34px);
+      font-weight: 300;
+      color: var(--charcoal);
+      text-align: center;
+      line-height: 1.3;
+      letter-spacing: 0.02em;
+      transform: translateY(16px);
+      opacity: 0;
+      transition: all 500ms ease 500ms;
+    }
+
+    .completion-overlay.is-visible .completion-text {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .completion-sub {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      transform: translateY(12px);
+      opacity: 0;
+      transition: all 500ms ease 650ms;
+    }
+
+    .completion-overlay.is-visible .completion-sub {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* ─── RESPONSIVE ─── */
     @media (min-width: 720px) {
-      .intro,
       .main-view {
-        padding-right: max(32px, calc((100vw - 680px) / 2));
-        padding-left: max(32px, calc((100vw - 680px) / 2));
+        padding-right: max(24px, calc((100vw - 640px) / 2));
+        padding-left: max(24px, calc((100vw - 640px) / 2));
       }
-
       .editor-inner {
-        padding-right: 32px;
-        padding-left: 32px;
+        padding-right: 36px;
+        padding-left: 36px;
       }
-
       .save-bar {
-        margin-right: -32px;
-        margin-left: -32px;
-        padding-right: 32px;
-        padding-left: 32px;
+        margin-right: -36px;
+        margin-left: -36px;
+        padding-right: 36px;
+        padding-left: 36px;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
+      *, *::before, *::after {
         scroll-behavior: auto !important;
         transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
       }
     }
   </style>
 </head>
 <body>
   <div class="app-shell">
+    <!-- INTRO -->
     <section class="intro" id="intro" aria-label="进入提醒空间">
-      <div class="intro-mark">
-        <p class="kicker">Departure Ritual</p>
-        <h1 class="intro-title">离开之前，请完成一次安静的确认。</h1>
-        <p class="intro-copy">触碰、进入、查看。让出门前的最后一分钟保持清醒。</p>
+      <div class="intro-inner">
+        <div class="intro-icon" aria-hidden="true"></div>
+        <p class="intro-kicker">Departure Checklist</p>
+        <h1 class="intro-title">离开之前，确认随身。</h1>
+        <p class="intro-copy">轻触 NFC，进入你的离舍清单。<br>让每一次出门都从容不迫。</p>
+        <button class="enter-button" id="enterButton" type="button"><span class="btn-line" aria-hidden="true"></span><span>进入</span></button>
       </div>
-      <div class="intro-action">
-        <span class="intro-note">NFC desktop reminder card</span>
-        <button class="enter-button" id="enterButton" type="button">进入全屏</button>
-      </div>
+      <p class="intro-footer">NFC Desktop Reminder</p>
     </section>
 
+    <!-- MAIN VIEW -->
     <main class="main-view" id="mainView">
       <header class="site-header">
-        <div>
+        <div class="header-top">
           <h2 class="site-title" id="pageTitle"></h2>
-          <p class="site-subtitle" id="pageSubtitle"></p>
+          <button class="edit-button" id="editButton" type="button">编辑</button>
         </div>
-        <button class="edit-button" id="editButton" type="button">编辑</button>
-        <div class="date-line" id="dateLine"></div>
+        <div class="header-rule"></div>
+        <div class="date-line">
+          <span id="dateLineText"></span>
+          <span class="date-line-right" id="dateLineSub"></span>
+        </div>
       </header>
 
-      <section class="today-panel" aria-labelledby="todayTitle">
-        <p class="section-label">Today</p>
+      <!-- TODAY HERO -->
+      <section class="today-hero" id="todayHero">
+        <p class="today-label">Today</p>
         <h2 class="today-weekday" id="todayTitle"></h2>
-        <p class="today-heading" id="todayHeading"></p>
-        <div class="today-items" id="todayItems"></div>
-        <p class="today-copy" id="todayCopy"></p>
+        <p class="today-date-sub" id="todayDateSub"></p>
+        <div class="today-divider"><div class="today-progress" id="todayProgress"></div></div>
+        <p class="today-status" id="todayStatus"></p>
+        <div class="checklist" id="checklist"></div>
       </section>
 
-      <section class="section" aria-labelledby="essentialsTitle">
+      <!-- CONFIRM -->
+      <section class="confirm-section" id="confirmSection">
+        <button class="confirm-button" id="confirmButton" type="button">
+          <span class="btn-deco" aria-hidden="true"></span>
+          <span>确认完毕，可以出门</span>
+          <svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8.5L6 12L13.5 4"/></svg>
+        </button>
+        <p class="confirm-hint" id="confirmHint">请确认所有物品已携带</p>
+      </section>
+
+      <!-- ESSENTIALS -->
+      <section class="detail-section" aria-labelledby="essentialsTitle">
         <div class="section-heading">
           <h2 class="section-title" id="essentialsTitle">固定携带</h2>
           <span class="section-code">Essentials</span>
         </div>
-        <div class="item-list" id="essentialsList"></div>
+        <div class="section-rule"></div>
+        <div class="detail-list" id="essentialsList"></div>
       </section>
 
-      <section class="section" aria-labelledby="extraTitle">
+      <!-- TODAY EXTRA -->
+      <section class="detail-section" aria-labelledby="extraTitle">
         <div class="section-heading">
           <h2 class="section-title" id="extraTitle">今日额外</h2>
           <span class="section-code">Additional</span>
         </div>
+        <div class="section-rule"></div>
         <div id="todayExtraDetail"></div>
       </section>
 
-      <section class="section" aria-labelledby="weeklyTitle">
+      <!-- WEEKLY -->
+      <section class="weekly-section">
         <details class="weekly-fold">
           <summary>
-            <span class="weekly-summary-title">
-              <strong id="weeklyTitle">完整周计划</strong>
+            <div class="weekly-summary-left">
+              <strong>完整周计划</strong>
               <span>展开查看每周额外携带安排</span>
-            </span>
-            <span class="weekly-chevron" aria-hidden="true">＋</span>
+            </div>
+            <span class="weekly-chevron" aria-hidden="true">+</span>
           </summary>
           <div class="weekly-list" id="weeklyList"></div>
         </details>
       </section>
     </main>
 
+    <!-- COMPLETION OVERLAY -->
+    <div class="completion-overlay" id="completionOverlay">
+      <div class="completion-icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12L9 17L20 6"/></svg>
+      </div>
+      <div class="completion-line" aria-hidden="true"></div>
+      <p class="completion-text">一切就绪</p>
+      <p class="completion-sub">安心出门</p>
+    </div>
+
+    <!-- EDITOR -->
     <div class="editor-overlay" id="editorOverlay" aria-hidden="true">
       <aside class="editor-sheet" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
         <div class="editor-inner">
           <div class="sheet-handle" aria-hidden="true"></div>
           <div class="editor-head">
-            <h2 class="editor-title" id="editorTitle">编辑提醒内容</h2>
+            <h2 class="editor-title" id="editorTitle">编辑提醒</h2>
             <button class="close-button" id="closeEditorButton" type="button">完成</button>
           </div>
-
           <form id="editorForm">
             <div class="form-grid">
               <div class="field">
                 <label for="titleInput">Title</label>
                 <input id="titleInput" type="text" autocomplete="off">
               </div>
-
               <div class="field">
                 <label for="subtitleInput">Subtitle</label>
                 <input id="subtitleInput" type="text" autocomplete="off">
               </div>
-
               <div class="field">
                 <label for="essentialsInput">Essentials</label>
                 <textarea id="essentialsInput" spellcheck="false"></textarea>
-                <p class="form-note">每行一个物品。</p>
+                <p class="form-note">每行一个物品</p>
               </div>
-
               <div class="weekly-editor" id="weeklyEditor"></div>
             </div>
-
             <div class="save-bar">
               <span class="save-feedback" id="saveFeedback">已保存</span>
-              <button class="save-button" type="submit">保存修改</button>
+              <button class="save-button" type="submit"><span>保存</span></button>
             </div>
           </form>
         </div>
@@ -764,7 +1290,7 @@
 
     const defaultData = {
       title: "离舍确认",
-      subtitle: "Before leaving the room",
+      subtitle: "Before leaving",
       essentials: ["水杯", "耳机", "解压泥"],
       weeklyExtras: {
         monday: [],
@@ -779,21 +1305,27 @@
 
     let currentData = loadData();
     let feedbackTimer;
+    let checkedState = new Set();
 
-    const elements = {
+    const el = {
       intro: document.getElementById("intro"),
       enterButton: document.getElementById("enterButton"),
       editButton: document.getElementById("editButton"),
       pageTitle: document.getElementById("pageTitle"),
-      pageSubtitle: document.getElementById("pageSubtitle"),
-      dateLine: document.getElementById("dateLine"),
+      dateLineText: document.getElementById("dateLineText"),
+      dateLineSub: document.getElementById("dateLineSub"),
       todayTitle: document.getElementById("todayTitle"),
-      todayHeading: document.getElementById("todayHeading"),
-      todayItems: document.getElementById("todayItems"),
-      todayCopy: document.getElementById("todayCopy"),
+      todayDateSub: document.getElementById("todayDateSub"),
+      todayStatus: document.getElementById("todayStatus"),
+      checklist: document.getElementById("checklist"),
+      confirmSection: document.getElementById("confirmSection"),
+      confirmButton: document.getElementById("confirmButton"),
+      confirmHint: document.getElementById("confirmHint"),
+      todayProgress: document.getElementById("todayProgress"),
       essentialsList: document.getElementById("essentialsList"),
       todayExtraDetail: document.getElementById("todayExtraDetail"),
       weeklyList: document.getElementById("weeklyList"),
+      completionOverlay: document.getElementById("completionOverlay"),
       editorOverlay: document.getElementById("editorOverlay"),
       closeEditorButton: document.getElementById("closeEditorButton"),
       editorForm: document.getElementById("editorForm"),
@@ -807,40 +1339,34 @@
     renderWeeklyEditor();
     renderPage();
 
-    elements.enterButton.addEventListener("click", enterExperience);
-    elements.editButton.addEventListener("click", openEditor);
-    elements.closeEditorButton.addEventListener("click", closeEditor);
-    elements.editorOverlay.addEventListener("click", (event) => {
-      if (event.target === elements.editorOverlay) {
-        closeEditor();
-      }
+    el.enterButton.addEventListener("click", enterExperience);
+    el.editButton.addEventListener("click", openEditor);
+    el.closeEditorButton.addEventListener("click", closeEditor);
+    el.editorOverlay.addEventListener("click", (e) => {
+      if (e.target === el.editorOverlay) closeEditor();
     });
-    elements.editorForm.addEventListener("submit", (event) => {
-      event.preventDefault();
+    el.editorForm.addEventListener("submit", (e) => {
+      e.preventDefault();
       currentData = collectEditorData();
       saveData(currentData);
       renderPage();
       showSavedFeedback();
     });
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        closeEditor();
-      }
+    el.confirmButton.addEventListener("click", confirmDeparture);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeEditor();
     });
 
+    // ── Data ──
     function loadData() {
       try {
-        const stored = localStorage.getItem(storageKey);
-        if (!stored) {
-          return cloneDefaultData();
-        }
-        return normalizeData(JSON.parse(stored));
-      } catch (error) {
-        return cloneDefaultData();
-      }
+        const s = localStorage.getItem(storageKey);
+        if (!s) return cloneDefault();
+        return normalize(JSON.parse(s));
+      } catch { return cloneDefault(); }
     }
 
-    function cloneDefaultData() {
+    function cloneDefault() {
       return JSON.parse(JSON.stringify(defaultData));
     }
 
@@ -848,198 +1374,276 @@
       localStorage.setItem(storageKey, JSON.stringify(data));
     }
 
-    function normalizeData(data) {
-      const weeklyExtras = {};
-      weekMeta.forEach((day) => {
-        weeklyExtras[day.key] = Array.isArray(data?.weeklyExtras?.[day.key])
-          ? data.weeklyExtras[day.key].filter(Boolean)
+    function normalize(data) {
+      const we = {};
+      weekMeta.forEach((d) => {
+        we[d.key] = Array.isArray(data?.weeklyExtras?.[d.key])
+          ? data.weeklyExtras[d.key].filter(Boolean)
           : [];
       });
-
       return {
         title: typeof data?.title === "string" && data.title.trim() ? data.title.trim() : defaultData.title,
         subtitle: typeof data?.subtitle === "string" ? data.subtitle.trim() : defaultData.subtitle,
         essentials: Array.isArray(data?.essentials) && data.essentials.length
           ? data.essentials.filter(Boolean)
           : [...defaultData.essentials],
-        weeklyExtras
+        weeklyExtras: we
       };
     }
 
+    // ── Render ──
     function renderPage() {
       const todayKey = getTodayKey();
       const todayLabel = getTodayLabel(todayKey);
       const todayExtras = currentData.weeklyExtras[todayKey] || [];
 
-      document.title = currentData.title || defaultData.title;
-      elements.pageTitle.textContent = currentData.title;
-      elements.pageSubtitle.textContent = currentData.subtitle;
-      elements.dateLine.textContent = `${todayLabel} · ${formatTodayDate()}`;
-      elements.todayTitle.textContent = todayLabel;
+      document.title = currentData.title;
+      el.pageTitle.textContent = currentData.title;
+      el.dateLineText.textContent = `${todayLabel} · ${formatDate()}`;
+      el.dateLineSub.textContent = currentData.subtitle;
+      el.todayTitle.textContent = todayLabel;
+      el.todayDateSub.textContent = formatDateFull();
 
-      renderTodayFocus(todayExtras);
+      checkedState.clear();
+      renderChecklist(todayExtras);
       renderEssentials();
-      renderTodayExtraDetail(todayExtras);
-      renderWeeklyPlan(todayKey);
+      renderExtra(todayExtras);
+      renderWeekly(todayKey);
+      updateConfirmState();
     }
 
-    function renderTodayFocus(items) {
-      if (items.length) {
-        elements.todayHeading.textContent = "今日额外携带";
-        elements.todayItems.textContent = items.join(" / ");
-        elements.todayCopy.textContent = "离开前，请确认它们已经在包里。";
+    function renderChecklist(extras) {
+      el.checklist.innerHTML = "";
+      const allItems = [
+        ...currentData.essentials.map((name, i) => ({ name, tag: null, key: `e${i}` })),
+        ...extras.map((name, i) => ({ name, tag: "extra", key: `x${i}` }))
+      ];
+
+      if (allItems.length === 0) {
+        el.todayStatus.textContent = "今日轻装出发";
         return;
       }
 
-      elements.todayHeading.textContent = "今日无额外携带";
-      elements.todayItems.textContent = "保持轻装";
-      elements.todayCopy.textContent = "确认固定物品即可。";
+      el.todayStatus.innerHTML = `需要携带 <strong style="font-family:var(--font-display);font-size:22px;font-weight:400;color:var(--charcoal)">${allItems.length}</strong> 件物品`;
+
+      allItems.forEach((item, idx) => {
+        const row = document.createElement("div");
+        row.className = "check-item";
+        row.dataset.key = item.key;
+        row.innerHTML = `
+          <span class="check-box">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5L6.5 12L13 4"/></svg>
+          </span>
+          <span class="check-text">${esc(item.name)}</span>
+          ${item.tag ? `<span class="check-tag">${item.tag}</span>` : ""}
+        `;
+        row.addEventListener("click", () => toggleCheck(row, item.key));
+        el.checklist.appendChild(row);
+        // Staggered entrance
+        requestAnimationFrame(() => {
+          setTimeout(() => row.classList.add("is-visible"), 60 * idx);
+        });
+      });
+    }
+
+    function toggleCheck(row, key) {
+      if (checkedState.has(key)) {
+        checkedState.delete(key);
+        row.classList.remove("is-checked");
+      } else {
+        checkedState.add(key);
+        row.classList.add("is-checked");
+      }
+      updateConfirmState();
+    }
+
+    function updateConfirmState() {
+      const total = el.checklist.querySelectorAll(".check-item").length;
+      const checked = checkedState.size;
+      const allDone = total > 0 && checked === total;
+
+      // Update progress bar
+      const pct = total > 0 ? (checked / total) * 100 : 0;
+      el.todayProgress.style.width = pct + "%";
+      el.todayProgress.classList.toggle("is-full", allDone);
+
+      if (total === 0) {
+        el.confirmHint.textContent = "今日无需额外确认";
+        return;
+      }
+
+      if (allDone) {
+        el.confirmHint.textContent = "全部已确认，点击下方完成出门";
+        el.confirmHint.style.color = "var(--sage)";
+      } else {
+        el.confirmHint.textContent = `已确认 ${checked} / ${total}`;
+        el.confirmHint.style.color = "var(--faint)";
+      }
+    }
+
+    function confirmDeparture() {
+      const total = el.checklist.querySelectorAll(".check-item").length;
+      if (total > 0 && checkedState.size < total) {
+        // Shake hint
+        el.confirmHint.style.animation = "none";
+        el.confirmHint.offsetHeight;
+        el.confirmHint.textContent = "还有物品未确认";
+        el.confirmHint.style.color = "var(--gold)";
+        return;
+      }
+
+      el.confirmButton.classList.add("is-done");
+      el.confirmButton.querySelectorAll("span")[1].textContent = "已确认出门";
+
+      // Show completion overlay
+      el.completionOverlay.classList.add("is-visible");
+
+      // Auto hide after 2.5s
+      setTimeout(() => {
+        el.completionOverlay.classList.remove("is-visible");
+      }, 2500);
     }
 
     function renderEssentials() {
-      elements.essentialsList.innerHTML = "";
-      currentData.essentials.forEach((item, index) => {
+      el.essentialsList.innerHTML = "";
+      currentData.essentials.forEach((item, i) => {
         const row = document.createElement("div");
-        row.className = "item-row";
+        row.className = "detail-row";
         row.innerHTML = `
-          <span class="item-index">${String(index + 1).padStart(2, "0")}</span>
-          <span class="item-name"></span>
+          <span class="detail-index">${String(i + 1).padStart(2, "0")}</span>
+          <span class="detail-name">${esc(item)}</span>
         `;
-        row.querySelector(".item-name").textContent = item;
-        elements.essentialsList.appendChild(row);
+        el.essentialsList.appendChild(row);
       });
     }
 
-    function renderTodayExtraDetail(items) {
-      elements.todayExtraDetail.innerHTML = "";
-
+    function renderExtra(items) {
+      el.todayExtraDetail.innerHTML = "";
       if (!items.length) {
-        const note = document.createElement("div");
-        note.className = "quiet-note";
-        note.textContent = "今日无额外携带，固定物品已足够。";
-        elements.todayExtraDetail.appendChild(note);
+        const n = document.createElement("div");
+        n.className = "detail-empty";
+        n.textContent = "今日无额外携带";
+        el.todayExtraDetail.appendChild(n);
         return;
       }
-
       const list = document.createElement("div");
-      list.className = "item-list extra-strip";
-      items.forEach((item, index) => {
+      list.className = "detail-list extra-strip";
+      items.forEach((item, i) => {
         const row = document.createElement("div");
-        row.className = "item-row";
+        row.className = "detail-row";
         row.innerHTML = `
-          <span class="item-index">A${String(index + 1).padStart(2, "0")}</span>
-          <span class="item-name"></span>
+          <span class="detail-index">A${String(i + 1).padStart(2, "0")}</span>
+          <span class="detail-name">${esc(item)}</span>
         `;
-        row.querySelector(".item-name").textContent = item;
         list.appendChild(row);
       });
-      elements.todayExtraDetail.appendChild(list);
+      el.todayExtraDetail.appendChild(list);
     }
 
-    function renderWeeklyPlan(todayKey) {
-      elements.weeklyList.innerHTML = "";
+    function renderWeekly(todayKey) {
+      el.weeklyList.innerHTML = "";
       weekMeta.forEach((day) => {
         const items = currentData.weeklyExtras[day.key] || [];
         const row = document.createElement("div");
         row.className = `week-row${day.key === todayKey ? " is-today" : ""}`;
-
-        const dayLabel = document.createElement("div");
-        dayLabel.className = "week-day";
-        dayLabel.textContent = day.label;
-
-        const content = document.createElement("div");
-        content.className = items.length ? "week-items" : "week-empty";
-        content.textContent = items.length ? items.join(" / ") : "轻装";
-
-        row.append(dayLabel, content);
-        elements.weeklyList.appendChild(row);
+        row.innerHTML = `
+          <span class="week-day">${day.label}</span>
+          <span class="${items.length ? "week-items" : "week-empty"}">${items.length ? items.map(esc).join(" / ") : "轻装"}</span>
+        `;
+        el.weeklyList.appendChild(row);
       });
     }
 
+    // ── Actions ──
     async function enterExperience() {
       try {
         if (document.documentElement.requestFullscreen) {
           await document.documentElement.requestFullscreen();
         }
-      } catch (error) {
-        // Fullscreen support varies on mobile browsers; the page still works without it.
-      } finally {
-        elements.intro.classList.add("is-hidden");
-      }
+      } catch {}
+      el.intro.classList.add("is-hidden");
     }
 
     function openEditor() {
-      elements.titleInput.value = currentData.title;
-      elements.subtitleInput.value = currentData.subtitle;
-      elements.essentialsInput.value = currentData.essentials.join("\n");
-      weekMeta.forEach((day) => {
-        const input = document.getElementById(`${day.key}Input`);
-        input.value = (currentData.weeklyExtras[day.key] || []).join("\n");
+      el.titleInput.value = currentData.title;
+      el.subtitleInput.value = currentData.subtitle;
+      el.essentialsInput.value = currentData.essentials.join("\n");
+      weekMeta.forEach((d) => {
+        document.getElementById(`${d.key}Input`).value =
+          (currentData.weeklyExtras[d.key] || []).join("\n");
       });
-
-      elements.editorOverlay.classList.add("is-open");
-      elements.editorOverlay.setAttribute("aria-hidden", "false");
+      el.editorOverlay.classList.add("is-open");
+      el.editorOverlay.setAttribute("aria-hidden", "false");
     }
 
     function closeEditor() {
-      elements.editorOverlay.classList.remove("is-open");
-      elements.editorOverlay.setAttribute("aria-hidden", "true");
+      el.editorOverlay.classList.remove("is-open");
+      el.editorOverlay.setAttribute("aria-hidden", "true");
     }
 
     function collectEditorData() {
-      const weeklyExtras = {};
-      weekMeta.forEach((day) => {
-        weeklyExtras[day.key] = linesToArray(document.getElementById(`${day.key}Input`).value);
+      const we = {};
+      weekMeta.forEach((d) => {
+        we[d.key] = linesToArray(document.getElementById(`${d.key}Input`).value);
       });
-
-      return normalizeData({
-        title: elements.titleInput.value,
-        subtitle: elements.subtitleInput.value,
-        essentials: linesToArray(elements.essentialsInput.value),
-        weeklyExtras
+      return normalize({
+        title: el.titleInput.value,
+        subtitle: el.subtitleInput.value,
+        essentials: linesToArray(el.essentialsInput.value),
+        weeklyExtras: we
       });
     }
 
     function renderWeeklyEditor() {
-      weekMeta.forEach((day) => {
-        const field = document.createElement("div");
-        field.className = "field";
-        field.innerHTML = `
-          <label for="${day.key}Input">${day.label} Extra</label>
-          <textarea id="${day.key}Input" spellcheck="false"></textarea>
+      weekMeta.forEach((d) => {
+        const f = document.createElement("div");
+        f.className = "field";
+        f.innerHTML = `
+          <label for="${d.key}Input">${d.label} Extra</label>
+          <textarea id="${d.key}Input" spellcheck="false"></textarea>
         `;
-        elements.weeklyEditor.appendChild(field);
+        el.weeklyEditor.appendChild(f);
       });
     }
 
-    function linesToArray(value) {
-      return value
-        .split("\n")
-        .map((item) => item.trim())
-        .filter(Boolean);
+    function linesToArray(v) {
+      return v.split("\n").map((s) => s.trim()).filter(Boolean);
     }
 
     function showSavedFeedback() {
       clearTimeout(feedbackTimer);
-      elements.saveFeedback.classList.add("is-visible");
-      feedbackTimer = window.setTimeout(() => {
-        elements.saveFeedback.classList.remove("is-visible");
+      el.saveFeedback.classList.add("is-visible");
+      feedbackTimer = setTimeout(() => {
+        el.saveFeedback.classList.remove("is-visible");
       }, 1500);
     }
 
     function getTodayKey() {
-      const index = new Date().getDay();
-      const keys = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-      return keys[index];
+      return ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"][new Date().getDay()];
     }
 
     function getTodayLabel(key) {
-      return weekMeta.find((day) => day.key === key)?.label || "今日";
+      return weekMeta.find((d) => d.key === key)?.label || "今日";
     }
 
-    function formatTodayDate() {
-      const now = new Date();
-      return `${now.getMonth() + 1}月${now.getDate()}日`;
+    function formatDate() {
+      const n = new Date();
+      return `${n.getMonth() + 1}月${n.getDate()}日`;
+    }
+
+    function formatDateFull() {
+      const n = new Date();
+      const y = n.getFullYear();
+      const m = String(n.getMonth() + 1).padStart(2, "0");
+      const d = String(n.getDate()).padStart(2, "0");
+      const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+      return `${y}.${m}.${d} · 星期${weekdays[n.getDay()]}`;
+    }
+
+    function esc(s) {
+      const d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
     }
   </script>
 </body>
