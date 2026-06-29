@@ -38,6 +38,8 @@
       --shadow-card: 0 8px 40px rgba(26, 25, 23, 0.06), 0 1px 2px rgba(26, 25, 23, 0.04);
       --shadow-sheet: 0 -16px 64px rgba(26, 25, 23, 0.12);
       --radius: 3px;
+      --viewport-height: 100vh;
+      --sheet-max-height: 88vh;
       --font-display: "Cormorant Garamond", "Noto Serif SC", "Songti SC", Georgia, serif;
       --font-body: "DM Sans", "Noto Sans SC", "PingFang SC", -apple-system, sans-serif;
     }
@@ -45,12 +47,15 @@
     *, *::before, *::after { box-sizing: border-box; }
 
     html {
+      height: -webkit-fill-available;
       min-height: 100%;
       background: var(--ivory);
       scroll-behavior: smooth;
     }
 
     body {
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
       min-height: 100%;
       margin: 0;
       color: var(--charcoal);
@@ -80,7 +85,9 @@
     .app-shell {
       position: relative;
       z-index: 1;
+      min-height: 100vh;
       min-height: 100dvh;
+      min-height: var(--viewport-height);
     }
 
     /* ─── INTRO ─── */
@@ -92,7 +99,9 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      min-height: 100vh;
       min-height: 100dvh;
+      min-height: var(--viewport-height);
       padding: 40px 32px;
       background: var(--ivory);
       opacity: 1;
@@ -220,7 +229,9 @@
 
     /* ─── MAIN VIEW ─── */
     .main-view {
+      min-height: 100vh;
       min-height: 100dvh;
+      min-height: var(--viewport-height);
       padding: calc(env(safe-area-inset-top) + 24px) 20px calc(env(safe-area-inset-bottom) + 60px);
     }
 
@@ -821,6 +832,9 @@
       background: transparent;
       pointer-events: none;
       transition: background 300ms ease, visibility 300ms;
+      min-height: 100vh;
+      min-height: 100dvh;
+      min-height: var(--viewport-height);
     }
 
     .editor-overlay.is-open {
@@ -831,7 +845,9 @@
 
     .editor-sheet {
       width: min(100%, 640px);
+      max-height: 88vh;
       max-height: 88dvh;
+      max-height: var(--sheet-max-height);
       overflow: auto;
       border: 1px solid var(--border-strong);
       border-bottom: 0;
@@ -967,6 +983,7 @@
       border-top: 1px solid var(--border);
       padding: 16px 28px calc(env(safe-area-inset-bottom) + 16px);
       background: rgba(252, 249, 243, 0.95);
+      -webkit-backdrop-filter: blur(16px);
       backdrop-filter: blur(16px);
     }
 
@@ -1035,6 +1052,9 @@
       opacity: 0;
       visibility: hidden;
       transition: all 600ms cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 100vh;
+      min-height: 100dvh;
+      min-height: var(--viewport-height);
     }
 
     .completion-overlay.is-visible {
@@ -1310,6 +1330,7 @@
 
     let currentData = loadData();
     let feedbackTimer;
+    let viewportTimer;
     let checkedState = new Set();
 
     const el = {
@@ -1341,6 +1362,7 @@
       saveFeedback: document.getElementById("saveFeedback")
     };
 
+    syncViewportHeight();
     renderWeeklyEditor();
     renderPage();
 
@@ -1361,6 +1383,24 @@
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") closeEditor();
     });
+    window.addEventListener("resize", scheduleViewportSync);
+    window.addEventListener("orientationchange", scheduleViewportSync);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", scheduleViewportSync);
+    }
+
+    function scheduleViewportSync() {
+      clearTimeout(viewportTimer);
+      viewportTimer = setTimeout(syncViewportHeight, 80);
+    }
+
+    function syncViewportHeight() {
+      const h = window.visualViewport && window.visualViewport.height
+        ? window.visualViewport.height
+        : window.innerHeight;
+      document.documentElement.style.setProperty("--viewport-height", `${Math.round(h)}px`);
+      document.documentElement.style.setProperty("--sheet-max-height", `${Math.round(h * 0.88)}px`);
+    }
 
     // ── Data ──
     function loadData() {
@@ -1380,17 +1420,21 @@
     }
 
     function normalize(data) {
+      const source = data && typeof data === "object" ? data : {};
+      const weeklyExtras = source.weeklyExtras && typeof source.weeklyExtras === "object"
+        ? source.weeklyExtras
+        : {};
       const we = {};
       weekMeta.forEach((d) => {
-        we[d.key] = Array.isArray(data?.weeklyExtras?.[d.key])
-          ? data.weeklyExtras[d.key].filter(Boolean)
+        we[d.key] = Array.isArray(weeklyExtras[d.key])
+          ? weeklyExtras[d.key].filter(Boolean)
           : [];
       });
       return {
-        title: typeof data?.title === "string" && data.title.trim() ? data.title.trim() : defaultData.title,
-        subtitle: typeof data?.subtitle === "string" ? data.subtitle.trim() : defaultData.subtitle,
-        essentials: Array.isArray(data?.essentials) && data.essentials.length
-          ? data.essentials.filter(Boolean)
+        title: typeof source.title === "string" && source.title.trim() ? source.title.trim() : defaultData.title,
+        subtitle: typeof source.subtitle === "string" ? source.subtitle.trim() : defaultData.subtitle,
+        essentials: Array.isArray(source.essentials) && source.essentials.length
+          ? source.essentials.filter(Boolean)
           : [...defaultData.essentials],
         weeklyExtras: we
       };
@@ -1628,7 +1672,8 @@
     }
 
     function getTodayLabel(key) {
-      return weekMeta.find((d) => d.key === key)?.label || "今日";
+      const day = weekMeta.find((d) => d.key === key);
+      return day ? day.label : "今日";
     }
 
     function formatDate() {
