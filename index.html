@@ -1367,7 +1367,9 @@
     renderPage();
 
     el.enterButton.addEventListener("click", enterExperience);
+    el.enterButton.addEventListener("touchend", handleEnterTouch, { passive: false });
     el.editButton.addEventListener("click", openEditor);
+    el.editButton.addEventListener("touchend", handleEditTouch, { passive: false });
     el.closeEditorButton.addEventListener("click", closeEditor);
     el.editorOverlay.addEventListener("click", (e) => {
       if (e.target === el.editorOverlay) closeEditor();
@@ -1604,22 +1606,33 @@
     }
 
     // ── Actions ──
-    async function enterExperience() {
-      try {
-        if (document.documentElement.requestFullscreen) {
-          await document.documentElement.requestFullscreen();
-        }
-      } catch {}
-      el.intro.classList.add("is-hidden");
+    function handleEnterTouch(e) {
+      e.preventDefault();
+      enterExperience(e);
     }
 
-    function openEditor() {
+    function handleEditTouch(e) {
+      e.preventDefault();
+      openEditor(e);
+    }
+
+    function enterExperience(e) {
+      if (e) e.preventDefault();
+      el.intro.classList.add("is-hidden");
+      setTimeout(() => {
+        el.intro.hidden = true;
+      }, 650);
+    }
+
+    function openEditor(e) {
+      if (e) e.preventDefault();
+      syncViewportHeight();
       el.titleInput.value = currentData.title;
       el.subtitleInput.value = currentData.subtitle;
       el.essentialsInput.value = currentData.essentials.join("\n");
       weekMeta.forEach((d) => {
-        document.getElementById(`${d.key}Input`).value =
-          (currentData.weeklyExtras[d.key] || []).join("\n");
+        const input = document.getElementById(`${d.key}Input`);
+        if (input) input.value = (currentData.weeklyExtras[d.key] || []).join("\n");
       });
       el.editorOverlay.classList.add("is-open");
       el.editorOverlay.setAttribute("aria-hidden", "false");
