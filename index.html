@@ -823,43 +823,37 @@
     /* ─── EDITOR ─── */
     .editor-overlay {
       position: fixed;
-      inset: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
       z-index: 200;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      visibility: hidden;
-      background: transparent;
+      display: none;
+      overflow: auto;
+      background: var(--panel);
       pointer-events: none;
-      transition: background 300ms ease, visibility 300ms;
+      -webkit-overflow-scrolling: touch;
       min-height: 100vh;
       min-height: 100dvh;
       min-height: var(--viewport-height);
     }
 
     .editor-overlay.is-open {
-      visibility: visible;
-      background: var(--veil);
+      display: block;
       pointer-events: auto;
     }
 
     .editor-sheet {
-      width: min(100%, 640px);
-      max-height: 88vh;
-      max-height: 88dvh;
-      max-height: var(--sheet-max-height);
-      overflow: auto;
-      border: 1px solid var(--border-strong);
-      border-bottom: 0;
+      width: 100%;
+      max-width: 640px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      min-height: var(--viewport-height);
+      margin: 0 auto;
+      overflow: visible;
+      border: 0;
       background: var(--panel);
-      box-shadow: var(--shadow-sheet);
-      transform: translateY(100%);
-      transition: transform 380ms cubic-bezier(0.32, 0.72, 0, 1);
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .editor-overlay.is-open .editor-sheet {
-      transform: translateY(0);
+      box-shadow: none;
     }
 
     .editor-inner {
@@ -1367,9 +1361,9 @@
     renderPage();
 
     el.enterButton.addEventListener("click", enterExperience);
-    el.enterButton.addEventListener("touchend", handleEnterTouch, { passive: false });
+    el.enterButton.addEventListener("touchend", handleEnterTouch, false);
     el.editButton.addEventListener("click", openEditor);
-    el.editButton.addEventListener("touchend", handleEditTouch, { passive: false });
+    el.editButton.addEventListener("touchend", handleEditTouch, false);
     el.closeEditorButton.addEventListener("click", closeEditor);
     el.editorOverlay.addEventListener("click", (e) => {
       if (e.target === el.editorOverlay) closeEditor();
@@ -1636,6 +1630,7 @@
       });
       el.editorOverlay.classList.add("is-open");
       el.editorOverlay.setAttribute("aria-hidden", "false");
+      el.editorOverlay.scrollTop = 0;
     }
 
     function closeEditor() {
